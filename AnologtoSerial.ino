@@ -1,10 +1,8 @@
 /*
  -*- coding: utf-8 -*-
-
 Ardiuno sketch to read the analog input at a
 maximum rate ; then write to serial buffer. Maximum
 read
-
 authors
 Jakob Maranzano
 Brent Maranzano
@@ -19,8 +17,8 @@ void read_analog(int data[], int data_length, int delay_time);
 int delay_time = 10;
 // Define array length that is a multiple of 64
 // which is the size of the Arduino serial buffer.
-int array_len = 768;
-int data[array_len];
+const int array_len = 768;
+int voltage[array_len];
 
 void setup() {
     // Set maximum serial baudrate.
@@ -31,11 +29,12 @@ void setup() {
 }
 
 void loop() {
-    read_analog(data[], array_len, delay_time);
-    write_data(data[], array_len);
+    read_analog(voltage, array_len, delay_time);
+    //write_point(voltage, array_len);
+    write_data(voltage, array_len);
 }
 
-void write_data(int data[], int data_length) {
+void write_data(int voltage[], int data_length) {
     int i, j=0;
     int buffer_size = 64;
     // Arduino buffer size is 64 byte
@@ -45,24 +44,27 @@ void write_data(int data[], int data_length) {
     while (j<data_length) {
         Serial.flush();
         for(i=0; i<buffer_size; i=i+2) {
-            writebuffer[i] = highByte(data[j]);
-            writebuffer[i+1] = lowByte(data[j]);
+            writebuffer[i] = highByte(voltage[j]);
+            writebuffer[i+1] = lowByte(voltage[j]);
             j = j + 1;
         }
-        Serial.write(writebuffer, buffer_size)
+        Serial.write(writebuffer, buffer_size);
     }
 
 }
 
-void read_analog(int data[], int data_length, int delay_time) {
+void write_point(int voltage[], int data_length){
+  Serial.println(voltage[0]);
+  Serial.println(voltage[1]);
+}
+
+void read_analog(int voltage[], int array_len, int delay_time) {
     int i;
-    // Turn led on to indicate reading.
-    digitalWrite(LED_BUILTIN, HIGH);
     // loop the analog read
-    for(i=0; i < data_len; i++)
+    for(i=0; i < array_len; i++)
     {
         // Set the desired pin.
-        data[i] = analogRead(A0);
+        voltage[i] = analogRead(A0);
         delay(delay_time);
     }
 }
